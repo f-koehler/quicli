@@ -1,5 +1,5 @@
-#ifndef QUICLI_HPP_
-#define QUICLI_HPP_
+#ifndef QUIInterface_HPP_
+#define QUIInterface_HPP_
 
 #include <algorithm>
 #include <functional>
@@ -215,7 +215,7 @@ namespace quicli
                                  std::vector<std::string>& args, ValueMap& vm) const override;
     };
 
-    class CLI
+    class Interface
     {
         protected:
             std::string _name;
@@ -223,7 +223,7 @@ namespace quicli
             std::size_t _num_positionals;
 
         public:
-            CLI(const std::string& name);
+            Interface(const std::string& name);
 
             template<typename T>
             T& add(const T& arg);
@@ -239,7 +239,7 @@ namespace quicli
             void validate(const ValueMap& vm) const;
             virtual std::string help() const;
 
-            CLI& num_positionals(std::size_t value = std::numeric_limits<std::size_t>::max());
+            Interface& num_positionals(std::size_t value = std::numeric_limits<std::size_t>::max());
     };
 
     
@@ -384,12 +384,12 @@ namespace quicli
 
 
     /////////////////////////
-    // class CLI
+    // class Interface
     /////////////////////////
-    CLI::CLI(const std::string& name) : _name(name) {}
+    Interface::Interface(const std::string& name) : _name(name) {}
 
     template <typename T>
-    T& CLI::add(const T& arg)
+    T& Interface::add(const T& arg)
     {
         auto pos = std::find_if(_args.begin(), _args.end(), [&arg](std::unique_ptr<Argument>& a) {
             return a->priority() <= arg.priority();
@@ -400,37 +400,37 @@ namespace quicli
     }
 
     template <typename T>
-    T& CLI::get(const std::string& name)
+    T& Interface::get(const std::string& name)
     {
         auto pos =
             std::find_if(_args.begin(), _args.end(),
                          [&name](std::unique_ptr<Argument>& arg) { return arg->has_name(name); });
         if(pos == _args.end())
-            throw std::runtime_error("No argument with name \"" + name + "\" in CLI \"" + _name
+            throw std::runtime_error("No argument with name \"" + name + "\" in Interface \"" + _name
                                      + "\"");
         return *dynamic_cast<T*>(pos->get());
     }
 
     template<typename T>
-    const T& CLI::get(const std::string& name) const
+    const T& Interface::get(const std::string& name) const
     {
         auto pos =
             std::find_if(_args.begin(), _args.end(), [&name](const std::unique_ptr<Argument>& arg) {
                 return arg->has_name(name);
             });
         if(pos == _args.end())
-            throw std::runtime_error("No argument with name \"" + name + "\" in CLI \"" + _name
+            throw std::runtime_error("No argument with name \"" + name + "\" in Interface \"" + _name
                                      + "\"");
         return *dynamic_cast<const T*>(pos->get());
     }
 
-    void CLI::parse(int argc, char** argv, ValueMap& vm) const
+    void Interface::parse(int argc, char** argv, ValueMap& vm) const
     {
         auto args = convert(argc, argv);
         parse(args, vm);
     }
 
-    void CLI::parse(std::vector<std::string>& args, ValueMap& vm) const
+    void Interface::parse(std::vector<std::string>& args, ValueMap& vm) const
     {
         while(!args.empty()) {
             bool matched = false;
@@ -453,7 +453,7 @@ namespace quicli
         }
     }
 
-    void CLI::validate(const ValueMap& vm) const
+    void Interface::validate(const ValueMap& vm) const
     {
         std::string msg = "";
         for(auto& arg : _args) {
@@ -464,14 +464,14 @@ namespace quicli
         if(!msg.empty()) throw std::runtime_error("Invalid set of arguments! Errors:\n"+msg);
     }
 
-    std::string CLI::help() const
+    std::string Interface::help() const
     {
         std::ostringstream strm;
         strm << _name << std::endl;
         return strm.str();
     }
     
-    CLI& CLI::num_positionals(std::size_t value)
+    Interface& Interface::num_positionals(std::size_t value)
     {
         _num_positionals = value;
         return *this;
