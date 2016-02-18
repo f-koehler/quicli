@@ -225,6 +225,7 @@ namespace quicli
             std::vector<std::unique_ptr<Argument>> _args;
             std::size_t _num_positionals;
             std::string _help_positionals;
+            std::string _name_positionals;
 
         public:
             Interface(const std::string& name);
@@ -243,8 +244,8 @@ namespace quicli
             void validate(const ValueMap& vm) const;
             virtual std::string help() const;
 
-            Interface& num_positionals(std::size_t value = std::numeric_limits<std::size_t>::max());
-            Interface& help_positionals(const std::string& text);
+            Interface& positionals(const std::string& name, const std::string& help = "",
+                                   std::size_t num = std::numeric_limits<std::size_t>::max());
     };
 
     
@@ -479,10 +480,12 @@ namespace quicli
     std::string Interface::help() const
     {
         std::ostringstream strm;
-        strm << _name << std::endl << std::endl;
+        strm << _name;
+        if(_num_positionals) strm << " " << _name_positionals;
+        strm << std::endl << std::endl;
 
         if(_num_positionals) {
-            strm << "positionals\t" << _help_positionals << std::endl;
+            strm << _name_positionals << "\t" << _help_positionals << std::endl;
         }
 
         for(auto& entry : _args) {
@@ -490,16 +493,13 @@ namespace quicli
         }
         return strm.str();
     }
-    
-    Interface& Interface::num_positionals(std::size_t value)
+
+    Interface& Interface::positionals(const std::string& name, const std::string& help,
+                                      std::size_t num)
     {
-        _num_positionals = value;
-        return *this;
-    }
-    
-    Interface& Interface::help_positionals(const std::string& text)
-    {
-        _help_positionals = text;
+        _name_positionals = name;
+        _help_positionals = help;
+        _num_positionals  = num;
         return *this;
     }
 }
