@@ -1,5 +1,5 @@
-#ifndef QUIInterface_HPP_
-#define QUIInterface_HPP_
+#ifndef QUICLI_HPP_
+#define QUICLI_HPP_
 
 #include <algorithm>
 #include <functional>
@@ -148,6 +148,7 @@ namespace quicli
             int _priority;
             std::tuple<bool, std::string> _default;
             bool _mandatory;
+            std::string _help;
 
         public:
             Argument(std::initializer_list<std::string> names);
@@ -156,11 +157,13 @@ namespace quicli
             Argument& priority(int val);
             Argument& default_value(const std::string& val);
             Argument& mandatory(bool val);
+            Argument& help(const std::string& help);
 
             const std::string& first_name() const;
             bool has_name(const std::string& name) const;
             int priority() const;
             bool mandatory() const;
+            const std::string& help() const;
 
             std::tuple<bool, std::size_t> matches(const std::string& str) const;
             virtual void extract(const std::tuple<bool, std::size_t>& match,
@@ -221,6 +224,7 @@ namespace quicli
             std::string _name;
             std::vector<std::unique_ptr<Argument>> _args;
             std::size_t _num_positionals;
+            std::string _help_positionals;
 
         public:
             Interface(const std::string& name);
@@ -240,6 +244,7 @@ namespace quicli
             virtual std::string help() const;
 
             Interface& num_positionals(std::size_t value = std::numeric_limits<std::size_t>::max());
+            Interface& help_positionals(const std::string& text);
     };
 
     
@@ -296,6 +301,12 @@ namespace quicli
         _mandatory = val;
         return *this;
     }
+    
+    Argument& Argument::help(const std::string& help)
+    {
+        _help = help;
+        return *this;
+    }
 
     const std::string& Argument::first_name() const { return _names.front(); }
     bool Argument::has_name(const std::string& name) const
@@ -304,6 +315,7 @@ namespace quicli
     }
     int Argument::priority() const { return _priority; }
     bool Argument::mandatory() const { return _mandatory; }
+    const std::string& Argument::help() const { return _help; }
 
     std::tuple<bool, std::size_t> Argument::matches(const std::string& str) const
     {
@@ -467,13 +479,27 @@ namespace quicli
     std::string Interface::help() const
     {
         std::ostringstream strm;
-        strm << _name << std::endl;
+        strm << _name << std::endl << std::endl;
+
+        if(_num_positionals) {
+            strm << "positionals\t" << _help_positionals << std::endl;
+        }
+
+        for(auto& entry : _args) {
+            strm << entry->first_name() << "\t" << entry->help() << std::endl;
+        }
         return strm.str();
     }
     
     Interface& Interface::num_positionals(std::size_t value)
     {
         _num_positionals = value;
+        return *this;
+    }
+    
+    Interface& Interface::help_positionals(const std::string& text)
+    {
+        _help_positionals = text;
         return *this;
     }
 }
