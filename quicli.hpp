@@ -14,6 +14,12 @@
 #include <vector>
 #include <cassert>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
+
 namespace quicli
 {
     using Occurance = std::vector<std::string>;
@@ -21,6 +27,10 @@ namespace quicli
     std::vector<std::string> convert(int argc, char** argv)
     {
         std::vector<std::string> args;
+#if defined(_WIN32) || defined(_WIN64)
+        auto environ = GetEnvironmentStrings();
+        throw std::runtime_error("Not implemented!");
+#else
         for(int i = 1; i < argc; ++i) {
             std::string curr(argv[i]);
             auto pos = curr.find('=');
@@ -31,7 +41,21 @@ namespace quicli
             args.push_back(curr.substr(0, pos));
             args.push_back(curr.substr(pos + 1));
         }
+#endif
         return args;
+    }
+
+    std::map<std::string, std::string> environment()
+    {
+        std::map<std::string, std::string> env;
+        std::size_t i = 0;
+        while(environ[i] != nullptr) ++i;
+        for(auto iter = environ; iter != environ+i; ++iter) {
+            std::string entry(*iter);
+            auto pos = entry.find_first_of('=');
+            env.emplace(std::make_pair(entry.substr(0, pos), entry.substr(pos+1)));
+        }
+        return env;
     }
 
     template <typename T>
