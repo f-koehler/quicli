@@ -160,6 +160,7 @@ namespace quicli
             const std::string& get(const std::string& name) const;
             const Occurance& get_values(const std::string& name) const;
             const std::vector<Occurance>& get_all(const std::string& name) const;
+            std::size_t count(const std::string& name) const;
 
             std::vector<std::string>& positionals();
             const std::vector<std::string>& positionals() const;
@@ -297,6 +298,12 @@ namespace quicli
     const std::vector<Occurance>& ValueMap::get_all(const std::string& name) const
     {
         return at(name);
+    }
+    std::size_t ValueMap::count(const std::string& name) const
+    {
+        auto pos = find(name);
+        if(pos == end()) return 0;
+        return pos->second.size();
     }
 
     std::vector<std::string>& ValueMap::positionals() { return _positionals; }
