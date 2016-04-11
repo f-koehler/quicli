@@ -73,13 +73,13 @@ namespace quicli
     {
         return std::stod(str);
     }
-    
+
     template <typename T>
     typename std::enable_if<std::is_same<T, float>::value, T>::type as(const std::string& str)
     {
         return std::stof(str);
     }
-    
+
     template <typename T>
     typename std::enable_if<std::is_same<T, int>::value, T>::type as(const std::string& str)
     {
@@ -91,13 +91,13 @@ namespace quicli
     {
         return std::stol(str);
     }
-    
+
     template <typename T>
     typename std::enable_if<std::is_same<T, long double>::value, T>::type as(const std::string& str)
     {
         return std::stold(str);
     }
-    
+
     template <typename T>
     typename std::enable_if<std::is_same<T, long long>::value, T>::type as(const std::string& str)
     {
@@ -126,7 +126,7 @@ namespace quicli
             vec.push_back(as<typename T::value_type>(token));
         return vec;
     }
-    
+
     template <typename T>
     typename std::enable_if<is_list<T>::value, T>::type as(const std::string& str)
     {
@@ -237,7 +237,7 @@ namespace quicli
             using Parameter::Parameter;
 
             Prompt(std::initializer_list<std::string> names, std::function<Occurance(void)> f);
-            
+
             virtual void extract(const std::tuple<bool, std::size_t>& match,
                                  std::vector<std::string>& args, ValueMap& vm) const override;
     };
@@ -272,8 +272,8 @@ namespace quicli
                                    std::size_t num = std::numeric_limits<std::size_t>::max());
     };
 
-    
-    
+
+
     /////////////////////////
     // class ValueMap
     /////////////////////////
@@ -326,7 +326,7 @@ namespace quicli
         _mandatory = val;
         return *this;
     }
-    
+
     Argument& Argument::help(const std::string& help)
     {
         _help = help;
@@ -348,9 +348,9 @@ namespace quicli
         if(iter == _names.end()) return std::make_tuple(false, 0);
         return std::make_tuple(true, iter - _names.begin());
     }
-    
-    
-    
+
+
+
     /////////////////////////
     // class Flag
     /////////////////////////
@@ -366,9 +366,9 @@ namespace quicli
             vm.insert(std::make_pair(_names.front(), std::vector<Occurance>{{"init"}}));
         vm[_names.front()][0][0] = std::to_string(count);
     }
-    
-    
-    
+
+
+
     /////////////////////////
     // class Parameter
     /////////////////////////
@@ -396,8 +396,8 @@ namespace quicli
         vm[_names.front()].emplace_back(Occurance(args.begin(), args.begin() + _num_vals));
         args.erase(args.begin(), args.begin() + _num_vals);
     }
-    
-   
+
+
 
     /////////////////////////
     // class Prompt
